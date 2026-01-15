@@ -3,7 +3,7 @@
 import Jetson.GPIO as GPIO
 import time
 
-LED_PIN = 18  # GPIO pin number where the LED is connected
+LED_PIN = 15  # GPIO pin number where the LED is connected
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(LED_PIN, GPIO.OUT)
