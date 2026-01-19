@@ -1,4 +1,5 @@
 #INITIALIZATION
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
@@ -6,8 +7,9 @@ from scipy.signal import stft
 import pyaudio
 import tensorflow as tf
 from IPython.display import clear_output
+import Jetson.GPIO as GPIO
 
-MODEL_PATH = "Best Models Folder/Yvette_1.keras"
+MODEL_PATH = "Best Models Folder/Yvette_1.keras"  #Change to the rebuilt version
 CATEGORIES = ['Claps', 'Keyboard', 'Keys']
 
 RECORD_SECONDS = 3 #seconds     # X resolution of the spectrograms (basically image width) depends on sampling rate
@@ -23,6 +25,17 @@ BLUR_SIGMA = 0.3
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 T_SAMP = 259
+
+# --- GPIO SETUP ---
+LED_CLAPS = 11      # Board Pin 11
+LED_KEYBOARD = 13   # Board Pin 13
+LED_KEYS = 15       # Board Pin 15
+
+def setup_gpio():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(LED_CLAPS, GPIO.OUT, initial=GPIO.LOW)
+    GPIO.setup(LED_KEYBOARD, GPIO.OUT, initial=GPIO.LOW)
+    GPIO.setup(LED_KEYS, GPIO.OUT, initial=GPIO.LOW)
 
 #--------------------------------------------------------------------------------------
 
@@ -152,9 +165,22 @@ def librosaless_spectrogram(audio_signal, sample_rate, n_mels=N_MELS, n_fft=N_FF
     
     return model_input, plot_data
 
+# --- LED trigger function ---
+def trigger_led(category):
+    mapping = {'Claps': LED_CLAPS, 'Keyboard': LED_KEYBOARD, 'Keys': LED_KEYS}
+    pin = mapping.get(category)
+    
+    if pin:
+        GPIO.output(pin, GPIO.HIGH)
+        time.sleep(4)
+        GPIO.output(pin, GPIO.LOW)
+    else:
+        print(f"No LED configured for: {category}")
 
 
 # ----- LIVE IMPLEMENTATION LOOP -----
+
+setup_gpio()
 
 # --- Load Model ---
 try:
@@ -221,7 +247,10 @@ try:
             class_name = CATEGORIES[predicted_index]
         else:
             class_name = "Unknown"
-            
+        
+        # --- 5. Trigger LED ---
+        trigger_led(class_name)
+        
         # 5. Visualization
         clear_output(wait=True)
         print(f"Prediction: {class_name} ({confidence:.2%} confidence)")
