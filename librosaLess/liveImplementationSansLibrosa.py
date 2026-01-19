@@ -28,14 +28,14 @@ TEMP_WAV = "temp_recording/live_chunk.wav"
 N_MELS = 128
 HOP_LENGTH = 512
 N_FFT = 2048
-T_SAMP = 150
+T_SAMP = 259
 
 # --- GPIO SETUP ---
 LED_CLAPS = 11      # Board Pin 11
 LED_KEYBOARD = 13   # Board Pin 13
 LED_KEYS = 15       # Board Pin 15
 
-MODEL_PATH = "model_tf27_2026-01-18_19-17-04.h5"
+MODEL_PATH = "Best Models Folder/Yvette_1.h5"
 
 CATEGORIES = ['Claps', 'Keyboard', 'Keys']
 
